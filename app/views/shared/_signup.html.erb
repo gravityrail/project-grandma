@@ -1,0 +1,11 @@
+<p id="account">
+  <% if(!current_user) %>
+    <%= link_to raw('<span>Connect with Facebook</span>'), '/user/auth/facebook', :class=>'login-button' %> |
+    <%= link_to 'Register', {:action=>"new", :controller=>"devise/registrations"} %> |
+    <%= link_to 'Login', {:action=>"new", :controller=>"devise/sessions"} %>
+  <% else %>
+    Logged in: <%= current_user.first_name.nil? ? current_user.email : current_user.first_name+' '+current_user.last_name %>
+    <%= link_to 'Account', {:action=>"edit", :controller=>"devise/registrations"} %> |
+    <%= link_to 'Logout', {:action=>"destroy", :controller=>"devise/sessions"} %>
+  <% end %>
+</p>

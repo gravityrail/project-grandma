@@ -1,0 +1,30 @@
+<%= content_for :title do %>
+<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<% end %>
+
+<% if(resource.fb_id.nil?) %>
+  <%= semantic_form_for(resource, :as => resource_name, :url => registration_path(resource_name), :html => { :method => :put }) do |f| %>
+    <%= devise_error_messages! %>
+  
+    <%= f.inputs do %>
+      <%= f.input :email, :input_html=>{:size=>20} %>
+      <%= f.input :password, :input_html=>{:size=>20} %>
+      <%= f.input :password_confirmation, :input_html=>{:size=>20} %>
+      <%= f.input :opt_in, :label=>'Receive email from AccessNow', :hint=>'Leave this box checked to receive emails from AccessNow' %>
+      <%= f.input :current_password, :input_html=>{:size=>20}, :hint=>'we need your current password to confirm your changes' %>
+    <% end %>
+    <% f.buttons do %>
+      <%= f.commit_button :label=>'Update' %>
+    <% end %>
+  <% end %>
+<% else %>
+<p>
+  You have signed in using Facebook. To cancel your account, click the link below, and remove the "GotHTTPS" app from your Facebook account.
+</p>
+<% end %>
+
+<h3>Cancel my account</h3>
+
+<p>Unhappy? <%= link_to "Cancel my account", registration_path(resource_name), :confirm => "Are you sure?", :method => :delete %>.</p>
+
+<%= link_to "Back", :back %>

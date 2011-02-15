@@ -1,0 +1,19 @@
+<%= content_for :title do %>
+<h2>Sign Up for GotHTTPS</h2>
+<% end %>
+
+<%= semantic_form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f| %>
+  <%= devise_error_messages! %>
+  <%= f.inputs do %>
+    <%= f.input :email, :input_html=>{:size=>20} %>
+    <%= f.input :password, :input_html=>{:size=>20} %>
+    <%= f.input :password_confirmation, :input_html=>{:size=>20} %>
+    <%= f.input :opt_in, :label=>'Join our mailing list', :hint=>'Leave this box checked to receive emails from AccessNow' %>
+  <% end %>
+  <% f.buttons do %>
+    <%= f.commit_button :label=>'Sign Up Now' %>
+    <li style="clear: both;">
+      <%= render :partial => "devise/shared/links" %>
+    </li>
+  <% end %>
+<% end %>
