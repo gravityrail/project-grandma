@@ -1,0 +1,1 @@
+ZENCODER_CONFIG = YAML.load_file("#{Rails.root.to_s}/config/zencoder.yml")[Rails.env]

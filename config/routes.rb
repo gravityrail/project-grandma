@@ -1,5 +1,16 @@
 Gothttps::Application.routes.draw do
 
+  resources :s3_uploads
+
+  resources :stories
+  
+  match '/stories/add_files/(:id)' => 'stories#add_files', :as => :add_files
+
+  # handle notifications from Zencoder
+  match "/stories/encode_notify" => 'stories#encode_notify'
+
+  match '/stories/manifest/(:id)' => 'stories#manifest', :as => :story_manifest
+
   devise_for :user, 
     :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" },
     :path_names => { :sign_in => 'login', 

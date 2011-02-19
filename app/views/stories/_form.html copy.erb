@@ -1,0 +1,446 @@
+<script type="text/javascript">
+var queueBytesLoaded = 0;
+var queueBytesTotal = 0;
+var myQueue = null;
+
+var queueChangeHandler = function(queue){
+	// alert('Uploading Started');
+	myQueue = queue;
+	// console.log("COLLECTION CHANGE!");
+	var list = document.getElementById('file_todo_list');
+	// Clear out the old
+	while (list.hasChildNodes()){list.removeChild(list.firstChild);}
+	// Add the new
+	for (i=0;i<queue.files.length;i++)
+	{
+		addFileToTodoList(queue.files[i].name, queue.files[i].size, i);
+	}
+};
+
+var uploadingStartHandler = function(){
+	queueBytesTotal = 0;
+	queueBytesLoaded = 0;
+	for (i=0;i<myQueue.files.length;i++)
+	{
+		queueBytesTotal += parseInt(myQueue.files[i].size);
+	}
+	document.getElementById('queue_size').innerHTML = readableBytes(queueBytesTotal);
+};
+
+var uploadingFinishHandler = function(){
+	document.getElementById('overall').firstChild.style.width = '100%';
+	document.getElementById('overall').firstChild.firstChild.innerHTML = '100%';
+  alert('All files have been successfully uploaded');
+};
+
+var queueClearHandler = function(queue){
+	document.getElementById('overall').firstChild.style.display = 'none';
+	document.getElementById('overall').firstChild.style.width = '0%';
+	document.getElementById('overall').firstChild.firstChild.innerHTML = '0%';
+	var list = document.getElementById('file_done_list');
+	while (list.hasChildNodes()){list.removeChild(list.firstChild);}
+};
+
+var addFileToDoneList = function(file_name, file_size){
+	var list = document.getElementById('file_done_list');
+	var li = document.createElement("li");
+	li.innerHTML = 
+		'<span class="progress"><span class="amount">100%</span></span>'+
+		'<span class="file_name">'+file_name+'</span>'+
+		'<span class="file_size">'+readableBytes(file_size)+'</span>';
+	list.appendChild(li);
+};
+
+var addFileToTodoList = function(file_name, file_size, index){
+	var list = document.getElementById('file_todo_list');
+	var li = document.createElement("li");
+	li.innerHTML = 
+		'<span class="progress"><span class="amount">0%</span></span>'+
+		'<span class="file_name">'+file_name+'</span>'+
+		'<span class="file_size">'+readableBytes(file_size)+'</span>'+
+		'<span class="delete" onclick="javascript:s3_swf_1_object.removeFileFromQueue('+index+');">Delete</span>';
+	list.appendChild(li);
+};
+
+var progressHandler = function(progress_event){
+	document.getElementById('file_todo_list').firstChild.children[3].style.display = 'none';
+	var current_percentage = Math.floor((parseInt(progress_event.bytesLoaded)/parseInt(progress_event.bytesTotal))*100)+'%';
+	document.getElementById('file_todo_list').firstChild.firstChild.style.display = 'block';
+	document.getElementById('file_todo_list').firstChild.firstChild.style.width = current_percentage;
+	document.getElementById('file_todo_list').firstChild.firstChild.firstChild.innerHTML = current_percentage;
+	
+	var overall_percentage = Math.floor(((queueBytesLoaded+parseInt(progress_event.bytesLoaded))/queueBytesTotal)*100)+'%';
+	document.getElementById('overall').firstChild.style.display = 'block';
+	document.getElementById('overall').firstChild.style.width = overall_percentage;
+	document.getElementById('overall').firstChild.firstChild.innerHTML = overall_percentage;
+};
+
+var uploadCompleteHandler = function(upload_options,event){
+	queueBytesLoaded += parseInt(upload_options.FileSize);
+	addFileToDoneList(upload_options.FileName,upload_options.FileSize);
+};
+
+var readableBytes = function(bytes) {
+	var s = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB'];
+	var e = Math.floor(Math.log(bytes)/Math.log(1024));
+	return (bytes/Math.pow(1024, Math.floor(e))).toFixed(2)+" "+s[e];
+}
+</script>
+
+<div id="upload">
+
+<div id="wrapper">
+	<h1>Uploader</h1>
+	<div id="file_lists">
+		<ul id="file_done_list" class="file_list"></ul>
+		<ul id="file_todo_list" class="file_list"></ul>
+	</div>
+
+	<div id="queue_size"></div>
+
+	<div id="overall"><span class="progress"><span class="amount">10%</span></span><span id="status"></span></div>
+
+	<%=raw s3_swf_upload_tag(
+		:fileTypes => '*.jpg;*.gif;*.png;',
+	  :fileTypeDescs => 'Image files.',
+		:onFileNotInQueue => "alert('File not found in the queue');",
+		:onFileSizeLimitReached => "alert('That file is too big');",
+		:onQueueChange => "queueChangeHandler(queue);",
+		:onQueueSizeLimitReached => "alert('There are too many files in the queue');",
+		:onQueueEmpty => "alert('You gotta have at least one file in there');",
+		:onQueueClear => "queueClearHandler(queue);",
+		:onUploadingStart => "uploadingStartHandler();",
+		:onUploadingFinish => "uploadingFinishHandler();",
+		:onSignatureIOError => "alert('There was an error');",
+		:onSignatureXMLError => "alert('There was an error');",
+		:onSignatureSecurityError => "alert('There was an error');",
+		:onUploadError => "alert('There was an error');",
+		:onUploadIOError => "alert('There was an error');",
+		:onUploadSecurityError => "alert('There was an error');",
+		:onUploadProgress => "progressHandler(progress_event);",
+		:onUploadComplete => "uploadCompleteHandler(upload_options,event);"
+		
+	) %>
+
+	<div>
+		<input type="submit" id="StartButton" value="Start Uploading" onclick="s3_swf_1_object.startUploading();" />
+		<input type="submit" id="ResetButton" value="Clear Queue" onclick="s3_swf_1_object.clearQueue();" />
+		<input type="submit" id="StopButton" value="Stop Uploading" onclick="s3_swf_1_object.stopUploading();" />
+	</div>
+
+
+</div>
+
+</div>
+
+<div id="debug">
+
+</div>
+
+<div id="dragdrop">
+Drag files here
+</div>
+
+<style>
+#dragdrop {
+  border:5px dashed gray;
+  height:100px;
+  border-radius:20px;
+  width:50%;
+  margin:auto;
+  font-size:20px;
+  color:Gray;
+  text-align:center;
+}
+</style>
+
+<script>
+function processXHR(file, index) {
+/* 			    var file = files[i]; */
+/* 			    var index = i; */
+			    
+  				var xhr = new XMLHttpRequest(),
+  					container = document.getElementById("item"+index),
+  					loader;
+  					fileUpload = xhr.upload,
+  					progressDomElements = [
+  						document.createElement('div'),
+  						document.createElement('p')
+  					];
+  				
+  				progressDomElements[0].className = "loader01";
+  				progressDomElements[0].appendChild(progressDomElements[1]);
+  				
+  				container.appendChild(progressDomElements[0]);
+  				loader = document.getElementsByClassName("loader01");
+  				
+  				fileUpload.addEventListener("progress", function(event) {
+  					if (event.lengthComputable) {
+  						var percentage = Math.round((event.loaded * 100) / event.total),
+  						loaderIndicator = container.firstChild.nextSibling.firstChild;
+  						if (percentage < 100) {
+  							loaderIndicator.style.width = percentage + "px";
+  						}
+  					}
+  				}, false);
+  				
+  				fileUpload.addEventListener("load", function(event) {
+  					loader[index].style.display = "none";
+  					console.log("xhr upload of "+container.id+" complete");
+  				}, false);
+  				
+  				fileUpload.addEventListener("error", function(evt) {
+  					console.log("error: " + evt.code);
+  				}, false);
+  
+  				xhr.open("POST", "upload.php");
+  				xhr.setRequestHeader("If-Modified-Since", "Mon, 26 Jul 1997 05:00:00 GMT");
+  				xhr.setRequestHeader("Cache-Control", "no-cache");
+  				xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+  				xhr.setRequestHeader("X-File-Name", file.fileName);
+  				xhr.setRequestHeader("X-File-Size", file.fileSize);
+  				xhr.setRequestHeader("Content-Type", "multipart/form-data");
+  				xhr.send(file);
+}
+
+var onGetJson = function() {}
+
+$(document).ready(function () {
+  
+  var dropListing = document.getElementById("output-listing01");
+
+  /**
+    * Add drop functionality to our holder,
+    * This is standard HTML5 File API
+    */
+	$("#dragdrop").addClass("sldropzone").bind('dragover',function(){return false;}).bind('drop', function(e){
+		var holder= this;
+		e = (e&&e.originalEvent?e.originalEvent:window.event) || e;
+		
+		if(e.preventDefault){
+			e.preventDefault();
+		}
+		var files = (e.files||e.dataTransfer.files);
+		
+		var s = "";
+		for (var i = 0; i < files.length; i++) {
+			(function(i){
+				  var reader = new FileReader();
+			    reader.onload = function (event) {
+			        holder.innerHTML = " "+(files[i].name)+"" + holder.innerHTML;
+			    };
+			    reader.readAsDataURL(files[i]);
+			    
+			    
+			    //var files = evt.target.files,
+					var filesFragment = document.createDocumentFragment(),
+					domElements;
+				
+//  				dropArea.style.visibility = "hidden";
+  				dropListing.style.display = "block";
+  				dropListing.innerHTML = "";
+  				console.log(files);
+				
+				  file = files[i]
+				
+  				//for(var i = 0, len = files.length; i < len; i++) {
+  					// Stop people trying to upload massive files don't need for demo to work
+  					//if(files[i].fileSize < 1048576) {
+  						// Check for duplicate files and skip iteration if so. Safari bug.
+  						//if(i != 0 && files[0].fileName === files[i].fileName) continue;
+  						
+  						domElements = [
+  							document.createElement('li'),
+  							document.createElement('span')
+  						];
+  						
+  						domElements[1].appendChild(document.createTextNode(files[i].fileName + " " + Math.round((files[i].fileSize/1024*100000)/100000)+"K "));
+  						domElements[0].id = "item"+i;
+  						domElements[0].appendChild(domElements[1]);
+  						
+  						filesFragment.appendChild(domElements[0]);
+  						
+  						dropListing.appendChild(filesFragment);
+  						
+  						//get json descriptor of additional fields to post using XMLHTTPreq
+  						$.getJSON('/s3_uploads', function(data) {
+                var items = [];
+              
+                $.each(data, function(key, val) {
+                  console.log('got ' + key + ' = ' + val);
+                });
+              
+                var bucket = items['bucket'];
+                var url = 'http://s3.amazonaws.com/'+bucket;
+                
+                $.post(url)
+              
+              });
+  						
+  						// Use xhr to send files to server async both Chrome and Safari support xhr2 upload and progress events
+  						processXHR(file, i);
+  					/*
+} else {
+  						alert("Please don't kill my server by uploading large files, anything below 1mb will work");
+  					}
+*/
+  				//}
+			})(i);
+		}
+		
+		return false;
+	});
+});
+</script>
+
+<script>
+function inspect(obj, maxLevels, level)
+{
+  var str = '', type, msg;
+
+    // Start Input Validations
+    // Don't touch, we start iterating at level zero
+    if(level == null)  level = 0;
+
+    // At least you want to show the first level
+    if(maxLevels == null) maxLevels = 1;
+    if(maxLevels < 1)     
+        return '<font color="red">Error: Levels number must be > 0</font>';
+
+    // We start with a non null object
+    if(obj == null)
+    return '<font color="red">Error: Object <b>NULL</b></font>';
+    // End Input Validations
+
+    // Each Iteration must be indented
+    str += '<ul>';
+
+    // Start iterations for all objects in obj
+    for(property in obj)
+    {
+      try
+      {
+          // Show "property" and "type property"
+          type =  typeof(obj[property]);
+          str += '<li>(' + type + ') ' + property + 
+                 ( (obj[property]==null)?(': <b>null</b>'):('')) + '</li>';
+
+          // We keep iterating if this property is an Object, non null
+          // and we are inside the required number of levels
+          if((type == 'object') && (obj[property] != null) && (level+1 < maxLevels))
+          str += inspect(obj[property], maxLevels, level+1);
+      }
+      catch(err)
+      {
+        // Is there some properties in obj we can't access? Print it red.
+        if(typeof(err) == 'string') msg = err;
+        else if(err.message)        msg = err.message;
+        else if(err.description)    msg = err.description;
+        else                        msg = 'Unknown';
+
+        str += '<li><font color="red">(Error) ' + property + ': ' + msg +'</font></li>';
+      }
+    }
+
+      // Close indent
+      str += '</ul>';
+
+    return str;
+}
+</script>
+
+	<ul id="output-listing01"></ul>
+	
+	
+<input type="file" multiple="true" id="upload_field" /><br/>
+		<input type="button" value="go" onclick="$('#upload_field').triggerHandler('html5_upload.start');"/>
+		<div id="progress_report">
+			<div id="progress_report_name"></div>
+			<div id="progress_report_status" style="font-style: italic;"></div>
+			<div id="progress_report_bar_container" style="width: 90%; height: 5px;">
+				<div id="progress_report_bar" style="background-color: blue; width: 0; height: 100%;"></div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			$("#upload_field").html5_upload({
+				autostart:false,
+				method:'PUT',
+				STATUSES:{
+				'STARTED':'Started',
+				'PROGRESS':'Progress',
+				'LOADED':'Loaded',
+				'FINISHED':'Finished'
+				},
+				headers:{
+				'x-amz-acl':'bucket-owner-full-control',
+				'Content-Type':function(file){
+					var ext = file.fileName.split(".").pop();
+					switch(ext){
+						case 'htm':
+						case 'html':
+						case 'htmls':
+						return 'text/html';
+						case 'css':
+						return 'text/css';
+						case 'gif':
+						return 'image/gif';
+						case 'jpeg':
+						case 'jpg':
+						return 'image/jpeg';
+						case 'png':
+						return 'image/png';
+						case 'pdf':
+						return 'application/pdf';
+						case 'zip':
+						return 'application/zip';
+						default:
+						return 'application/octet-stream';
+					}
+					return('application/octet-stream');
+				}
+				},
+				genName: function(file, number, total) {
+					return file + "(" + (number+1) + " of " + total + ")";
+				},
+				url: function(number) {
+				  return 'http://s3.amazonaws.com/projectgrandma_development';
+//					return 'testing/' + $('#upload_field')[0].files[number].fileName;
+				},
+				sendBoundary: false,
+				setName: function(text) {
+						$("#progress_report_name").text(text);
+				},
+				setStatus: function(text) {
+					$("#progress_report_status").text(text);
+				},
+				setProgress: function(val) {
+					$("#progress_report_bar").css('width', Math.ceil(val*100)+"%");
+				},
+				onFinishOne: function(event, response, name, number, total) {
+				}
+			});
+		</script>	
+
+<%= semantic_form_for(@video, :html => {:multipart => true}) do |f| %>
+  <% if @video.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@video.errors.count, "error") %> prohibited this video from being saved:</h2>
+
+      <ul>
+      <% @video.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <%= f.inputs do %>
+    <%= f.input :title %>
+    <%= f.input :description %>
+    <%= f.input :video, :as => :file %>
+  <% end %>
+  
+  <%= f.buttons do %>
+    <%= f.commit_button 'Upload' %>
+  <% end %>
+<% end %>

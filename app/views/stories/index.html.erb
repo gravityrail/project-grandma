@@ -1,0 +1,17 @@
+<h1>Listing Stories</h1>
+
+<ul>
+<% @stories.each do |story| %>
+  <li>
+    <h3><%= story.title %></h3>
+    <%= image_tag story.thumbnail.url %>
+    <p><%= link_to 'Show', story %> |
+    <%= link_to 'Edit', edit_story_path(story) %> |
+    <%= link_to 'Destroy', story, :confirm => 'Are you sure?', :method => :delete %>
+  </li>
+<% end %>
+</ul>
+
+<br />
+
+<%= link_to 'New Story', new_story_path %>

@@ -49,4 +49,5 @@ Gothttps::Application.configure do
   
   ENV['fbappid'] = "164012786983058"
   ENV['fbsecret'] = "3e46f20879f9db3a4c39f31aa8919839"
+  ENV['ZENCODER_API_KEY'] = '9e680e213433dcf616d83f1c7dbe5600'
 end

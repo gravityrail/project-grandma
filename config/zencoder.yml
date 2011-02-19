@@ -1,0 +1,15 @@
+defaults: &defaults
+  bucket: projectgrandma_encoded
+  access_key_id: AKIAIVFWPJ5VISGCRF6Q
+  secret_access_key: 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
+  notification_url: http://projectgrandma.com/videos/encoder_notify
+  
+development:
+  <<: *defaults  
+  
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
+

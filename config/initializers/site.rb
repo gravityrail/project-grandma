@@ -1,0 +1,1 @@
+SITE_NAME = "Project Grandma"

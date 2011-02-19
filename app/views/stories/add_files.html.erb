@@ -1,0 +1,211 @@
+<script type="text/javascript">
+var queueBytesLoaded = 0;
+var queueBytesTotal = 0;
+var myQueue = null;
+
+var queueChangeHandler = function(queue){
+	// alert('Uploading Started');
+	myQueue = queue;
+	// console.log("COLLECTION CHANGE!");
+	var list = document.getElementById('file_todo_list');
+	// Clear out the old
+	while (list.hasChildNodes()){list.removeChild(list.firstChild);}
+	// Add the new
+	for (i=0;i<queue.files.length;i++)
+	{
+		addFileToTodoList(queue.files[i].name, queue.files[i].size, i);
+	}
+};
+
+var uploadingStartHandler = function(){
+	queueBytesTotal = 0;
+	queueBytesLoaded = 0;
+	for (i=0;i<myQueue.files.length;i++)
+	{
+		queueBytesTotal += parseInt(myQueue.files[i].size);
+	}
+	document.getElementById('queue_size').innerHTML = readableBytes(queueBytesTotal);
+};
+
+var uploadingFinishHandler = function(){
+	document.getElementById('overall').firstChild.style.width = '100%';
+	document.getElementById('overall').firstChild.firstChild.innerHTML = '100%';
+  alert('All files have been successfully uploaded');
+};
+
+var queueClearHandler = function(queue){
+	document.getElementById('overall').firstChild.style.display = 'none';
+	document.getElementById('overall').firstChild.style.width = '0%';
+	document.getElementById('overall').firstChild.firstChild.innerHTML = '0%';
+	var list = document.getElementById('file_done_list');
+	while (list.hasChildNodes()){list.removeChild(list.firstChild);}
+};
+
+var addFileToDoneList = function(file_name, file_size){
+	var list = document.getElementById('file_done_list');
+	var li = document.createElement("li");
+	li.innerHTML = 
+		'<span class="progress"><span class="amount">100%</span></span>'+
+		'<span class="file_name">'+file_name+'</span>'+
+		'<span class="file_size">'+readableBytes(file_size)+'</span>';
+	list.appendChild(li);
+};
+
+var addFileToTodoList = function(file_name, file_size, index){
+	var list = document.getElementById('file_todo_list');
+	var li = document.createElement("li");
+	li.innerHTML = 
+		'<span class="progress"><span class="amount">0%</span></span>'+
+		'<span class="file_name">'+file_name+'</span>'+
+		'<span class="file_size">'+readableBytes(file_size)+'</span>'+
+		'<span class="delete" onclick="javascript:s3_swf_1_object.removeFileFromQueue('+index+');">Delete</span>';
+	list.appendChild(li);
+};
+
+var progressHandler = function(progress_event){
+	document.getElementById('file_todo_list').firstChild.children[3].style.display = 'none';
+	var current_percentage = Math.floor((parseInt(progress_event.bytesLoaded)/parseInt(progress_event.bytesTotal))*100)+'%';
+	document.getElementById('file_todo_list').firstChild.firstChild.style.display = 'block';
+	document.getElementById('file_todo_list').firstChild.firstChild.style.width = current_percentage;
+	document.getElementById('file_todo_list').firstChild.firstChild.firstChild.innerHTML = current_percentage;
+	
+	var overall_percentage = Math.floor(((queueBytesLoaded+parseInt(progress_event.bytesLoaded))/queueBytesTotal)*100)+'%';
+	document.getElementById('overall').firstChild.style.display = 'block';
+	document.getElementById('overall').firstChild.style.width = overall_percentage;
+	document.getElementById('overall').firstChild.firstChild.innerHTML = overall_percentage;
+};
+
+var uploadCompleteHandler = function(upload_options,event){
+	queueBytesLoaded += parseInt(upload_options.FileSize);
+	addFileToDoneList(upload_options.FileName,upload_options.FileSize);
+//	$('#debug').html(inspect(upload_options));
+	addFileToStory(upload_options.FileName,upload_options.FileSize);
+
+/*
+(object) ContentDisposition: null
+(object) CacheControl: null
+(string) AWSAccessKeyId
+(object) successactionstatus: null
+(string) acl
+(string) bucket
+(object) ContentEncoding: null
+(string) key
+(object) file: null
+(string) FileName
+(object) ContentType: null
+(string) Expires
+(object) xamzsecuritytoken: null
+(string) policy
+(object) successactionredirect: null
+(string) FileSize
+(string) Secure
+(string) signature
+(object) redirect: null
+*/
+};
+
+var readableBytes = function(bytes) {
+	var s = ['bytes', 'kb', 'MB', 'GB', 'TB', 'PB'];
+	var e = Math.floor(Math.log(bytes)/Math.log(1024));
+	return (bytes/Math.pow(1024, Math.floor(e))).toFixed(2)+" "+s[e];
+}
+</script>
+
+<div id="upload">
+	<h3>Add Files to <%= @story.title %></h3>
+	
+	<div id="file_lists">
+		<ul id="file_done_list" class="file_list"></ul>
+		<ul id="file_todo_list" class="file_list"></ul>
+	</div>
+
+	<div id="queue_size"></div>
+
+	<div id="overall"><span class="progress"><span class="amount">10%</span></span><span id="status"></span></div>
+
+	<%=raw s3_swf_upload_tag(
+		:fileTypes => '*.webm;*.mp4;*.avi;*.mpg;*.mp4',
+	  :fileTypeDescs => 'Video files.',
+		:onFileNotInQueue => "alert('File not found in the queue');",
+		:onFileSizeLimitReached => "alert('That file is too big');",
+		:onQueueChange => "queueChangeHandler(queue);",
+		:onQueueSizeLimitReached => "alert('There are too many files in the queue');",
+		:onQueueEmpty => "alert('You gotta have at least one file in there');",
+		:onQueueClear => "queueClearHandler(queue);",
+		:onUploadingStart => "uploadingStartHandler();",
+		:onUploadingFinish => "uploadingFinishHandler();",
+		:onSignatureIOError => "alert('There was an error');",
+		:onSignatureXMLError => "alert('There was an error');",
+		:onSignatureSecurityError => "alert('There was an error');",
+		:onUploadError => "alert('There was an error');",
+		:onUploadIOError => "alert('There was an error');",
+		:onUploadSecurityError => "alert('There was an error');",
+		:onUploadProgress => "progressHandler(progress_event);",
+		:onUploadComplete => "uploadCompleteHandler(upload_options,event);"
+		
+	) %>
+
+	<div>
+		<input type="submit" id="StartButton" value="Start Uploading" onclick="s3_swf_1_object.startUploading(); return false;" />
+		<input type="submit" id="ResetButton" value="Clear Queue" onclick="s3_swf_1_object.clearQueue();return false;" />
+		<input type="submit" id="StopButton" value="Stop Uploading" onclick="s3_swf_1_object.stopUploading();return false;" />
+	</div>
+</div>
+
+<script>
+function inspect(obj, maxLevels, level)
+{
+  var str = '', type, msg;
+
+    // Start Input Validations
+    // Don't touch, we start iterating at level zero
+    if(level == null)  level = 0;
+
+    // At least you want to show the first level
+    if(maxLevels == null) maxLevels = 1;
+    if(maxLevels < 1)     
+        return '<font color="red">Error: Levels number must be > 0</font>';
+
+    // We start with a non null object
+    if(obj == null)
+    return '<font color="red">Error: Object <b>NULL</b></font>';
+    // End Input Validations
+
+    // Each Iteration must be indented
+    str += '<ul>';
+
+    // Start iterations for all objects in obj
+    for(property in obj)
+    {
+      try
+      {
+          // Show "property" and "type property"
+          type =  typeof(obj[property]);
+          str += '<li>(' + type + ') ' + property + 
+                 ( (obj[property]==null)?(': <b>null</b>'):('')) + '</li>';
+
+          // We keep iterating if this property is an Object, non null
+          // and we are inside the required number of levels
+          if((type == 'object') && (obj[property] != null) && (level+1 < maxLevels))
+          str += inspect(obj[property], maxLevels, level+1);
+      }
+      catch(err)
+      {
+        // Is there some properties in obj we can't access? Print it red.
+        if(typeof(err) == 'string') msg = err;
+        else if(err.message)        msg = err.message;
+        else if(err.description)    msg = err.description;
+        else                        msg = 'Unknown';
+
+        str += '<li><font color="red">(Error) ' + property + ': ' + msg +'</font></li>';
+      }
+    }
+
+      // Close indent
+      str += '</ul>';
+
+    return str;
+}
+</script>
+
+<div id="debug">Debug</div>

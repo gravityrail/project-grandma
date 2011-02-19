@@ -16,6 +16,19 @@ gem 'vestal_versions'
 gem 'formtastic'
 #gem 'table_builder'
 
+
+
+# for video uploads
+gem 'paperclip'
+gem 'delayed_job'
+#gem 'delayed_paperclip'
+gem 's3_swf_upload', :git => 'git://github.com/nathancolgate/s3-swf-upload-plugin'
+
+# for zencoder
+gem 'zencoder'
+gem 'zencoder-fetcher'
+gem 'httparty'
+
 # Use unicorn as the web server
 # gem 'unicorn'
 
@@ -30,7 +43,7 @@ gem 'formtastic'
 # gem 'bj'
 # gem 'nokogiri'
 # gem 'sqlite3-ruby', :require => 'sqlite3'
-# gem 'aws-s3', :require => 'aws/s3'
+gem 'aws-s3', :require => 'aws/s3'
 
 # Bundle gems for the local environment. Make sure to
 # put test-only gems in this group so their generators

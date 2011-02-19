@@ -1,0 +1,201 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Title:</b>
+  <%= @story.title %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%= @story.description %>
+</p>
+
+<p>
+  <b>Owner:</b>
+  <%= @story.owner_id %>
+</p>
+
+<p>
+  <% @story.video_files.each do |video| %>
+  <video id='video' data-timeline-sources="/stories/manifest/<%= @story.id %>.xml"
+    controls 
+    width= '640px'> 
+    <source id='mp4'
+      src="<%= video.webm_url %>"
+      type='video/mp4; codecs="vp8, vorbis"'>     
+    <source id='mp4'
+      src="test/trailer.mp4"
+      type='video/mp4; codecs="avc1, mp4a"'> 
+    <source id='ogv'
+      src="test/trailer.ogv"
+      type='video/ogg; codecs="theora, vorbis"'> 
+    <p>Your user agent does not support the HTML5 Video element.</p> 
+  </video> 
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var p = Popcorn('#video').play()
+        .lowerthird({
+          start: 5, // seconds
+          end: 15, // seconds
+          salutation: 'Mr',
+          name: 'Hyde',
+          role: 'Monster'
+        } )
+        .lowerthird({
+          start: 20, // seconds
+          end: 45, // seconds
+          salutation: 'Dr',
+          name: 'Jekyll',
+          role: 'Person'
+        } )
+        .image({
+          start: 5, // seconds
+          end: 15, // seconds
+          href: 'http://www.google.com/',
+          src: '/videos/annotations/Marijuana Leaf.gif',
+          target: 'imagediv'
+        } )
+        .image({
+          start: 20, // seconds
+          end: 45, // seconds
+          // no href
+          src: '/videos/annotations/Planet Nerd Logo.png',
+          target: 'imagediv'
+        } )
+        .image({
+          start: 20, // seconds
+          end: 45, // seconds
+          // no href
+          src: '/videos/annotations/profile_med.jpg',
+          target: 'imagediv2'
+        } )
+        .exec(5, function(){
+          
+          $wall = $('#masonry').find('.wrap');
+          $wall.find('.red').toggleClass('invis').fadeIn(1000);
+          $wall.masonry({
+            columnWidth: 100, 
+            // only apply masonry layout to visible elements
+            itemSelector: '.box:not(.invis)',
+            animate: true,
+            animationOptions: {
+              duration: speed,
+              queue: false
+            }
+          });
+        })
+        
+        ;
+    }, false);
+    /*document.addEventListener('DOMContentLoaded', function () {
+      var p = Popcorn('#video')
+      .volume(0)
+      .play() 
+      .subtitle({
+        start: 5, // seconds
+        end: 15, // seconds
+        text: 'this is the first subtitle of 2011'
+      } )
+      .subtitle({
+        start: 20, // seconds
+        end: 45, // seconds
+        text: 'this is the second subtitle of 2011'
+      } )
+
+    }, false);*/
+
+  </script>
+  
+  <div id="masonry">
+    <div class="wrap">
+      <div class="box col1 black"><img src="/videos/annotations/profile_med.jpg" width="100" height="100"/ ></div>
+      <div class="box col1 red"><img src="/videos/annotations/Planet Nerd Logo.png" width="100" height="200"/ ></div>
+      <div class="box col2 grey"><img src="/videos/annotations/Marijuana Leaf.gif" width="50" height="50"/ ></div>
+      <div class="box col1 black"><img src="/videos/annotations/profile_med.jpg" width="100" height="100"/ ></div>
+      <div class="box col1 grey"><img src="/videos/annotations/Planet Nerd Logo.png" width="100" height="200"/ ></div>
+      <div class="box col2 red"><img src="/videos/annotations/Marijuana Leaf.gif" width="50" height="50"/ ></div>
+    </div>
+  </div>
+  
+  <style> 
+    .wrap { overflow: hidden;}
+    /**** Masonry CSS ****/
+    
+    .wrap {
+      background: #FFF;
+      border: 0px solid #456;
+      padding: 10px;
+    	margin-bottom: 20px;
+    	border-radius: 5px;
+    	clear: both;
+    	-webkit-border-radius: 5px;
+    	   -moz-border-radius: 5px;
+    	        border-radius: 5px;
+    }
+    
+    .box {
+      margin: 5px;
+      padding: 5px;
+      background: #D8D5D2;
+      font-size: 11px;
+      float: left;
+      -webkit-border-radius: 5px;
+         -moz-border-radius: 5px;
+              border-radius: 5px;
+    }
+    
+    .col1 { width: 80px; }
+    .col2 { width: 180px; }
+    .col3 { width: 280px; }
+    .col4 { width: 380px; }
+    .col5 { width: 480px; }
+    
+    .col1 img { max-width: 80px; }
+    .col2 img { max-width: 180px; }
+    .col3 img { max-width: 280px; }
+    .col4 img { max-width: 380px; }
+    .col5 img { max-width: 480px; }
+
+  </style> 
+  
+  <script>
+    $wall = $('#masonry').find('.wrap');
+    $wall.find('.box:not(.black)').toggleClass('invis').hide();
+    $wall.masonry({
+        columnWidth: 100, 
+        // only apply masonry layout to visible elements
+        itemSelector: '.box:not(.invis)',
+        animate: true,
+        animationOptions: {
+          duration: speed,
+          queue: false
+        }
+      });
+  </script>
+  
+  <div id="imagediv" style="border: 2px solid green;"></div>
+  
+  <div id="imagediv2" style="border: 2px solid red;"></div>
+  
+   <h2>Choose your language</h2>
+    <select id="language">
+      <option value="zh">Chinese</option>
+      <option value="en" selected="selected">English</option>
+      <option value="fr">French</option>
+      <option value="de">German</option>
+      <option value="it">Italian</option>
+      <option value="ja">Japanese</option>
+      <option value="ko">Korean</option>
+      <option value="fa">Persian</option>
+      <option value="pl">Polish</option>
+      <option value="pt">Portuguese</option>
+      <option value="es">Spanish</option>
+    </select>
+
+  
+  <% end %>
+</p>
+
+<%= link_to 'Edit', edit_story_path(@story) %> |
+<%= link_to 'Back', stories_path %>

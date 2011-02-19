@@ -32,4 +32,8 @@ Gothttps::Application.configure do
 
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
+  
+  ENV['fbappid'] = "192948844063427"
+  ENV['fbsecret'] = "2f9e7ac8e57400cb8d1277372214ea20"  
+  ENV['ZENCODER_API_KEY'] = '9e680e213433dcf616d83f1c7dbe5600'
 end

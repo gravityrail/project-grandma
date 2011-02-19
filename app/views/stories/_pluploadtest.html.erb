@@ -1,0 +1,15 @@
+<script>
+var uploader = new plupload.Uploader({
+	runtimes : 'gears,html5,flash,silverlight,browserplus',
+	browse_button : 'pickfiles',
+	max_file_size : '10mb',
+	resize : {width : 320, height : 240, quality : 90},
+	url : 'upload.php',
+	flash_swf_url : '/plupload/js/plupload.flash.swf',
+	silverlight_xap_url : '/plupload/js/plupload.silverlight.xap',
+	filters : [
+		{title : "Image files", extensions : "jpg,gif,png"},
+		{title : "Zip files", extensions : "zip"}
+	]
+});
+</script>

@@ -1,0 +1,22 @@
+<%= semantic_form_for(@story, :html => {:multipart => true}) do |f| %>
+  <% if @story.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@story.errors.count, "error") %> prohibited this story from being saved:</h2>
+
+      <ul>
+      <% @video.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <%= f.inputs do %>
+    <%= f.input :title %>
+    <%= f.input :description %>
+  <% end %>
+
+  <%= f.buttons do %>
+    <%= f.commit_button 'Add Videos' %>
+  <% end %>
+<% end %>
