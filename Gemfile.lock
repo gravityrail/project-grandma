@@ -11,21 +11,21 @@ GIT
       selenium-webdriver (>= 0.0.3)
 
 GIT
+  remote: git://github.com/gravityrail/warden-facebook.git
+  revision: 2156c25d835f36e1232ab35fc85c21401eeb7c2d
+  specs:
+    warden-facebook (0.1.3)
+      json
+      oauth2
+      warden
+
+GIT
   remote: git://github.com/intridea/oauth2.git
   revision: ce16d32cbeb3920e44c03664f86945f7b5f733bf
   specs:
     oauth2 (0.1.1)
       faraday (~> 0.5.0)
       multi_json (~> 0.0.4)
-
-GIT
-  remote: git://github.com/maca/warden-facebook.git
-  revision: 54d0a2f194772b6e92bfa20519537f94384c638b
-  specs:
-    warden-facebook (0.1.3)
-      json
-      oauth2
-      warden
 
 GIT
   remote: git://github.com/nathancolgate/s3-swf-upload-plugin
