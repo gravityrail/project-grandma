@@ -30,7 +30,8 @@
       src="test/trailer.ogv"
       type='video/ogg; codecs="theora, vorbis"'> 
     <p>Your user agent does not support the HTML5 Video element.</p> 
-  </video> 
+  </video>
+  <div id="time" height="200" width="640"></div>
   
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -53,7 +54,7 @@
           start: 5, // seconds
           end: 15, // seconds
           href: 'http://www.google.com/',
-          src: '/videos/annotations/Marijuana Leaf.gif',
+          src: '/videos/annotations/pugwall.jpg',
           target: 'imagediv'
         } )
         .image({
@@ -80,13 +81,42 @@
             itemSelector: '.box:not(.invis)',
             animate: true,
             animationOptions: {
-              duration: speed,
+              duration: 1000,
+              queue: false
+            }
+          })
+        });
+        /*
+.exec(10, function(){
+          
+          $wall = $('#masonry').find('.wrap');
+          $wall.find('.grey').toggleClass('invis').fadeIn(1000);
+          $wall.masonry({
+            columnWidth: 100, 
+            // only apply masonry layout to visible elements
+            itemSelector: '.box:not(.invis)',
+            animate: true,
+            animationOptions: {
+              duration: 1000,
               queue: false
             }
           });
-        })
-        
-        ;
+        }).exec(15, function(){
+          
+          $wall = $('#masonry').find('.wrap');
+          $wall.find('.black').toggleClass('invis').fadeIn(1000);
+          $wall.masonry({
+            columnWidth: 100, 
+            // only apply masonry layout to visible elements
+            itemSelector: '.box:not(.invis)',
+            animate: true,
+            animationOptions: {
+              duration: 1000,
+              queue: false
+            }
+          });
+        });
+*/
     }, false);
     /*document.addEventListener('DOMContentLoaded', function () {
       var p = Popcorn('#video')
@@ -109,12 +139,18 @@
   
   <div id="masonry">
     <div class="wrap">
-      <div class="box col1 black"><img src="/videos/annotations/profile_med.jpg" width="100" height="100"/ ></div>
+      <div class="box col1 black"><img src="/videos/annotations/profile_med.jpg" width="100" height="120"/ ></div>
       <div class="box col1 red"><img src="/videos/annotations/Planet Nerd Logo.png" width="100" height="200"/ ></div>
-      <div class="box col2 grey"><img src="/videos/annotations/Marijuana Leaf.gif" width="50" height="50"/ ></div>
+      <div class="box col2 grey"><img src="/videos/annotations/pugwall.jpg" width="50" height="50"/ ></div>
       <div class="box col1 black"><img src="/videos/annotations/profile_med.jpg" width="100" height="100"/ ></div>
       <div class="box col1 grey"><img src="/videos/annotations/Planet Nerd Logo.png" width="100" height="200"/ ></div>
-      <div class="box col2 red"><img src="/videos/annotations/Marijuana Leaf.gif" width="50" height="50"/ ></div>
+      <div class="box col2 red"><img src="/videos/annotations/pugwall.jpg" width="75" height="50"/ ></div>
+      <div class="box col1 grey"><img src="/videos/annotations/profile_med.jpg" width="100" height="120"/ ></div>
+      <div class="box col1 black"><img src="/videos/annotations/Planet Nerd Logo.png" width="100" height="200"/ ></div>
+      <div class="box col2 red"><img src="/videos/annotations/pugwall.jpg" width="50" height="80"/ ></div>
+      <div class="box col1 grey"><img src="/videos/annotations/profile_med.jpg" width="100" height="100"/ ></div>
+      <div class="box col1 red"><img src="/videos/annotations/Planet Nerd Logo.png" width="180" height="200"/ ></div>
+      <div class="box col2 black"><img src="/videos/annotations/pugwall.jpg" width="55" height="60"/ ></div>
     </div>
   </div>
   
@@ -140,6 +176,7 @@
       background: #D8D5D2;
       font-size: 11px;
       float: left;
+      position: absolute;
       -webkit-border-radius: 5px;
          -moz-border-radius: 5px;
               border-radius: 5px;
@@ -159,19 +196,28 @@
 
   </style> 
   
-  <script>
-    $wall = $('#masonry').find('.wrap');
-    $wall.find('.box:not(.black)').toggleClass('invis').hide();
-    $wall.masonry({
-        columnWidth: 100, 
-        // only apply masonry layout to visible elements
-        itemSelector: '.box:not(.invis)',
-        animate: true,
-        animationOptions: {
-          duration: speed,
-          queue: false
-        }
-      });
+  <script> 
+    //add wall of images
+    document.addEventListener('DOMContentLoaded', function () {
+      $wall = $('#masonry').find('.wrap');
+      $wall.find('.box:not(.black)').toggleClass('invis').hide();
+      $wall.masonry({
+          columnWidth: 100, 
+          // only apply masonry layout to visible elements
+          itemSelector: '.box:not(.invis)',
+          animate: true,
+          animationOptions: {
+            duration: 1000,
+            queue: false
+          }
+        });
+    }, false);
+    
+    //add time bar
+    document.addEventListener('DOMContentLoaded', function () {
+      var timebar = new Timebar(580);    
+      timebar.draw(700,200,document.getElementById("time"),document.getElementById("video"));
+    }, false);
   </script>
   
   <div id="imagediv" style="border: 2px solid green;"></div>

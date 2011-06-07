@@ -1,4 +1,10 @@
-body { margin: 20px 0 0 0; }
+body { 
+  margin: 20px 0 0 0; 
+/*  font-family: junction;*/
+  background-color: #1D1E21;
+  background-image: -moz-radial-gradient(#FFF, #AAA);
+  background-image: -webkit-gradient(radial, center center, 20, center center, 700, from(#FFF), to(#AAA), color-stop(10%, #FFF));
+}
 
 h1, h2, h3, h4 {
  /* font spec? */
